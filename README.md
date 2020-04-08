@@ -1,8 +1,7 @@
 # Stochastic-Shortest-Path-Percentile-Problem
 
-Run SSPP_playgrond.  
-
-Dependencies:  
+Run SSPP_playground.  
+Dependencies:
 * NumPy
 * NetworkX
 * PuPL
