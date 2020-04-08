@@ -26,7 +26,7 @@ def reach(mdp: MDP,
                 x[k] = -1
                 break
 
-    # put all non-1 states into untreated_states
+    # put all non-0 & non-1 states into untreated_states
     untreated_states = list(filter(lambda s: x[s] == -1, x.keys()))
 
     if untreated_states:
