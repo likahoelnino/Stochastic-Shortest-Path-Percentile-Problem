@@ -45,7 +45,11 @@ class MDP:
                     actions[item['action']] = {item['to']: item['proba']}
         return actions
 
-    def get_weight(self, state, action, next_state):
+    def get_weight(self, state, action, next_state=None):
+        if next_state is None:
+            # since all successors with same action share the same weight,
+            # choose the first one
+            next_state = list(self.get_actions(state)[action])[0]
         if self._g.has_edge(state, next_state, action):
             return self._g[state][next_state][action]['weight']
         else:
