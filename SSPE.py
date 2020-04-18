@@ -29,17 +29,26 @@ def generate_action(state, policy, epsilon):
 
 
 def vi(markov: MDP,
+       initial_state,
+       terminal_state,
        gamma: float = 1.,
        episodes: int = 50,
        ):
     """
     value iteration
     :param markov: Markov Decision Process instance
+    :param initial_state: initial point
+    :param terminal_state: terminal point
     :param gamma: discount factor
     :param episodes: runs of iterations
     :return: values, policy
     """
+    global start
+    global end
     global mdp
+
+    start = initial_state
+    end = terminal_state
     mdp = markov
 
     v = {}

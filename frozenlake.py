@@ -6,6 +6,7 @@
 
 from mdp import MDP
 from SSPP import guaranteed_short_path
+from SSPE import q_learn, monte_carlo, vi
 
 LEFT = 0
 UP = 1
@@ -36,7 +37,7 @@ class FrozenLakeMDP(MDP):
 
     def __init__(self,
                  new_map: bool = False  # v2: True: create a MDP of FrozenLake 8x8
-                                        #     False: create a MDP of FrozenLake 4x4
+                 #     False: create a MDP of FrozenLake 4x4
                  ):
         super().__init__()
 
@@ -45,7 +46,8 @@ class FrozenLakeMDP(MDP):
             n_col = 8
             states = list(range(64))
             actions = list(range(4))
-            holes = [2*8+3, 3*8+5, 4*8+4, 5*8+1, 5*8+2, 5*8+6, 6*8+1, 6*8+4, 6*8+6, 7*8+3]
+            holes = [2 * 8 + 3, 3 * 8 + 5, 4 * 8 + 4, 5 * 8 + 1, 5 * 8 + 2, 5 * 8 + 6, 6 * 8 + 1, 6 * 8 + 4, 6 * 8 + 6,
+                     7 * 8 + 3]
 
             self.starting_point = 0
             self.goal = 63
@@ -96,8 +98,8 @@ class FrozenLakeMDP(MDP):
             if state in holes:
                 self._g.add_edge(state, state, key=DONE,
                                  action=DONE,
-                                 weight=0,
-                                 length=0,
+                                 weight=-1,
+                                 length=1,
                                  fr=state,
                                  to=state,
                                  proba=1,
@@ -135,10 +137,13 @@ class FrozenLakeAgent:
         that move to the goal within the target steps in the Frozen Lake using
         SSPP algorithm
     """
+
     def __init__(self,
-                 big_map: bool = False,  # True: create a MDP of FrozenLake 8x8
-                                         # False: create a MDP of FrozenLake 4x4
-                 max_length: int = -50,  # steps that target to move to the goal within the number of steps
+                 big_map: bool = False,
+                 # True: create a MDP of FrozenLake 8x8
+                 # False: create a MDP of FrozenLake 4x4
+                 max_length: int = -50,
+                 # steps that target to move to the goal within the number of steps
                  ):
         self.mdp = FrozenLakeMDP(new_map=big_map)
         self._max_length = max_length
@@ -156,3 +161,58 @@ class FrozenLakeAgent:
 
     def get_policy(self):
         return self._policy
+
+
+class Agent:
+    def __init__(self,
+                 big_map: bool = False,
+                 # True: create a MDP of FrozenLake 8x8
+                 # False: create a MDP of FrozenLake 4x4
+                 ):
+        self.mdp = FrozenLakeMDP(new_map=big_map)
+        self._policy = [-1] * (63 if big_map else 15)
+
+    def get_policy(self):
+        return self._policy
+
+
+class QLearnAgent(Agent):
+    def __init__(self,
+                 big_map: bool = False,
+                 # True: create a MDP of FrozenLake 8x8
+                 # False: create a MDP of FrozenLake 4x4
+                 alpha=0.01,
+                 gamma=1.,
+                 epsilon=1.,
+                 eps_min=0.1,
+                 eps_decade=0.9,
+                 episodes=50,
+                 verbose=0  # Integer. 0, 1, or 2. Verbosity mode
+                 ):
+        super().__init__(big_map=big_map)
+        self._q = {}
+        self._q, pi = q_learn(markov=self.mdp,
+                              initial_state=self.mdp.starting_point,
+                              terminal_state=self.mdp.goal,
+                              alpha=alpha, gamma=gamma,
+                              epsilon=epsilon, eps_min=eps_min, eps_decade=eps_decade,
+                              episodes=episodes, verbose=verbose)
+        self._policy = list(pi.values())
+
+
+class VIAgent(Agent):
+    def __init__(self,
+                 big_map: bool = False,
+                 # True: create a MDP of FrozenLake 8x8
+                 # False: create a MDP of FrozenLake 4x4
+                 gamma=1.,
+                 episodes=50,
+                 ):
+        super().__init__(big_map=big_map)
+        self._q = {}
+        self._q, pi = vi(markov=self.mdp,
+                         initial_state=self.mdp.starting_point,
+                         terminal_state=self.mdp.goal,
+                         gamma=gamma,
+                         episodes=episodes)
+        self._policy = list(pi.values())
