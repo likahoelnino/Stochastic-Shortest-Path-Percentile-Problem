@@ -7,9 +7,8 @@
 
 from mdp import MDP, UnfoldedMDP
 from my_env import *
-from SSPP import reach, reachability_optimal_policy, guaranteed_short_path
+from SSPP import guaranteed_short_path
 import random
-import pprint as pp
 
 
 def run(mdp: MDP,  # a Morkov Decision Process instance
@@ -40,5 +39,7 @@ def run(mdp: MDP,  # a Morkov Decision Process instance
 
 m = MDP()
 m.generate_from_my_format(state_2_action, action_2_state)
-pi = guaranteed_short_path(m, 'home', ['work'], -60, 1, 0)
+# z = UnfoldedMDP(m, 'home', ['work'], -60)
+pi = guaranteed_short_path(m, 'home', ['work'], -45, 0, 0)
 run(m, 'home', ['work'], pi, 10)
+
