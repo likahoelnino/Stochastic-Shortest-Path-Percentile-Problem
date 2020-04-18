@@ -5,7 +5,6 @@
 
 
 import numpy as np
-import copy
 from mdp import MDP
 
 start: object

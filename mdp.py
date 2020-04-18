@@ -4,18 +4,21 @@
 # -----------------------------------------------------------
 
 import networkx as nx
+import sys
 
-BOT = 'BOT'
+sys.setrecursionlimit(5000)
+
+BOT = ('BOT', float('inf'))
 
 
 class MDP:
     """
     Implementation of Markov Decision Process structure
-    using NetworkX Graph
-    An MDP structure is stored in a MultiDiGraph
-    States are stored in nodes.
-    Actions are stored edges' keys
-    Weights of the actions and transition probabilities are stored in the attributes of the edges
+      using NetworkX Graph;
+    An MDP structure is stored in a MultiDiGraph;
+    States are stored in nodes;
+    Actions are stored edges' keys;
+    Weights of the actions and transition probabilities are stored in the attributes of the edges;
     """
 
     def __init__(self):
@@ -68,6 +71,7 @@ class MDP:
                     self._g.add_edge(state, next_state, key=action,
                                      action=action,
                                      weight=s2a[state][action],
+                                     length=-s2a[state][action],
                                      fr=state,
                                      to=next_state,
                                      proba=a2s[action][next_state],
@@ -84,6 +88,7 @@ class UnfoldedMDP(MDP):
     """
     Unfold an MDP following an initial state (s0), a list of target states (T) and a maximum length threshold (l)
     """
+
     def __init__(self, mdp, s0, target, length, init_value=0):
         super().__init__()
         self._target = []
@@ -93,6 +98,7 @@ class UnfoldedMDP(MDP):
         self._g.add_edge(u_for_edge=bot, v_for_edge=bot,
                          key='loop', action='loop', proba=1,
                          fr=bot, to=bot)
+        all_pairs_length = dict(nx.all_pairs_dijkstra_path_length(mdp_graph, weight='length'))
 
         def unfold(state, value):
             if not self._g.has_node((state, value)):
@@ -111,7 +117,14 @@ class UnfoldedMDP(MDP):
                     for next_state in mdp_graph[state]:
                         for action in mdp_graph[state][next_state]:
                             next_value = value + mdp_graph[state][next_state][action]['weight']
-                            if next_value >= length:
+                            remaining = float('inf')
+                            shortest_length = float('inf')
+                            for t in target:
+                                if t in all_pairs_length[next_state]:
+                                    shortest_length = all_pairs_length[next_state][t]
+                                if shortest_length < remaining:
+                                    remaining = shortest_length
+                            if next_value - remaining >= length:
                                 unfold(next_state, next_value)
                                 self._g.add_edge((state, value), (next_state, next_value),
                                                  key=action,

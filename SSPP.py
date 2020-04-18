@@ -26,7 +26,7 @@ def reach(mdp: MDP,
                 x[k] = -1
                 break
 
-    # put all non-0 & non-1 states into untreated_states
+    # put all non-0 and non-1 states into untreated_states
     untreated_states = list(filter(lambda s: x[s] == -1, x.keys()))
 
     if untreated_states:
@@ -99,6 +99,7 @@ def guaranteed_short_path(mdp: MDP,
                           length: int,
                           proba_threshold: float = 0.,  # Float in [0, 1]
                           verbose: int = 0,  # Integer. 0, 1, or 2. Verbosity mode
+                          return_x: bool = False  # Boolean. Return reach score "x" or not
                           ):
     """
     Compute the maximum probability to reach a set of target states "targets" from a initial state "source" of
@@ -110,4 +111,6 @@ def guaranteed_short_path(mdp: MDP,
     for state in policy:
         if x[state] >= proba_threshold:
             new_policy[state] = policy[state]
+    if return_x:
+        return new_policy, x
     return new_policy
