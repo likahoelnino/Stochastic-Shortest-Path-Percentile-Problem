@@ -5,3 +5,4 @@ Dependencies:
 * NumPy
 * NetworkX
 * PuPL
+* gym (for FrozenLake simulation)
