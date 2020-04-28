@@ -1,6 +1,6 @@
 # Stochastic-Shortest-Path-Percentile-Problem
 
-Run SSPP_playground.  
+Run files in folder playgrounds 
 Dependencies:
 * NumPy
 * NetworkX
